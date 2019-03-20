@@ -83,7 +83,8 @@ begin
   writeln('1) Masuk sebagai operator');
   writeln('2) Masuk sebagai klien');
   writeln('3) Cek paket saya');
-  writeln('4) Keluar');
+  writeln('4) Bantuan');
+  writeln('5) Keluar');
   writeln('=========================');
   write('Pilih => ');
   readln(ch);
