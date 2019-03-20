@@ -81,7 +81,7 @@ Procedure menuUtama;
 begin
   writeln('=========================');
   writeln('1) Masuk sebagai operator');
-  writeln('2) Masuk sebagai klien');
+  writeln('2) Kirim paket');
   writeln('3) Cek paket saya');
   writeln('4) Bantuan');
   writeln('5) Keluar');
@@ -90,15 +90,11 @@ begin
   readln(ch);
 end;
 
-Procedure menuKlien;
+Procedure kirimPaket(id);
+var
+  pk : paket;
 begin
-  writeln('=========================');
-  writeln('1) Kirim paket baru');
-  writeln('2) Cek paket yang dikirim');
-  writeln('3) Keluar');
-  writeln('=========================');
-  write('Pilih => ');
-  readln(ch);
+
 end;
 
 BEGIN
