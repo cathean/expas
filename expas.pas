@@ -180,6 +180,18 @@ begin
 	end;
 	
 	Close(Fpk);
+	
+	Assign(Fkw, 'karyawandb.dat');
+	Reset(Fkw);
+	kwLen := FileSize(Fkw);
+	
+	for i := 1 to kwLen do
+	begin
+		Seek(Fkw, i - 1);
+		Read(Fkw, kwMem[i]);
+	end;
+	
+	Close(Fkw);
 end;
 
 Procedure saveKlien(kl : klien);
@@ -218,11 +230,18 @@ end;
 
 Procedure saveKaryawan(kw : karyawan);
 var
+	i : integer;
   Fkw : file of karyawan;
 begin
+	kwMem[kwLen + 1] := kw;
   Assign(Fkw, 'karyawandb.dat');
-  Seek(Fkw, FileSize(Fkw) - 1);
-  write(Fkw, kw);
+  Rewrite(Fkw);
+  
+  for i := 1 to kwLen + 1 do
+  begin
+		write(Fkw, kwMem[i]);
+  end;
+  
   Close(Fkw);
 end;
 
@@ -260,17 +279,25 @@ end;
 Procedure operatorMenu;
 var
 	id : integer;
+	kw : karyawan;
+	Fkw : file of karyawan;
 begin
-	write('Masukkan id karyawan anda : ');
-	readln(id);
+	Assign(Fkw, 'karyawandb.dat');
+	Reset(Fkw);
+	read(Fkw, kw);
+
+	repeat
+		write('Masukkan id karyawan anda (nol untuk keluar) : ');
+		readln(id);
+	until (id = kw.id_karyawan);
 
 	clrscr;
   writeln('=========================');
-  writeln('1) Masuk sebagai operator');
-  writeln('2) Kirim paket');
-  writeln('3) Cek paket saya');
+  writeln('1) Daftar paket');
+  writeln('2) Ganti status paket');
+  writeln('3) ');
   writeln('4) Bantuan');
-  writeln('5) Keluar');
+  writeln('5) ');
   writeln('=========================');
   write('Pilih => ');
   readln(ch);
@@ -339,9 +366,9 @@ begin
 	
 	for i := 1 to npaket do
 	begin
-		pk.id_paket := kl.id_klien + pr.id_penerima + FileSize(Fpk) + 1;
+		pk.id_paket := kl.id_klien * 100 + pr.id_penerima * 10 + FileSize(Fpk) + 1;
 	
-		write('ID paket      : ', pk.id_paket);
+		writeln('ID paket      : ', pk.id_paket);
 		write('Nama barang   : ');
 		readln(pk.nama);
 		write('Tujuan barang : ');
@@ -358,12 +385,12 @@ Procedure show();
 var
 	i : integer;
 begin
-	for i := 1 to prLen do
+	for i := 1 to kwLen do
 	begin
-		writeln(prMem[i].id_penerima);
-		writeln(prMem[i].nama);
-		writeln(prMem[i].alamat);
-		writeln(prMem[i].no_hp);
+		writeln(kwMem[i].id_karyawan);
+		writeln(kwMem[i].nama);
+		{writeln(prMem[i].alamat);}
+		writeln(kwMem[i].no_hp);
 	end;
 end;
 
@@ -378,7 +405,7 @@ BEGIN
     
     case ch of
 			1:	begin
-						write('xxx');
+						operatorMenu;
 					end;
 			2:	begin
 						kirimPaket;
