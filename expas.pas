@@ -316,7 +316,7 @@ begin
 	writeln('Pilihan menu');
   writeln('=========================');
   writeln('1) Daftar paket');
-  writeln('2) Ganti status paket');
+  writeln('2) Daftar klien dan penerima');
   writeln('3) Hapus semua database');
   writeln('4) Kembali');
   writeln('=========================');
@@ -460,7 +460,7 @@ begin
 	byk := k;
 end;
 
-Procedure cariPaket(id : integer; var pkResult : paket);
+ Procedure cariPaket(id : integer; var pkResult : paket);
 var
 	i : integer;
 	pk : paket;
@@ -580,7 +580,7 @@ begin
 	adakah := false;
 	
 	Assign(Fpk, 'paketdb.dat');
-	Rewrite(Fpk);
+	Reset(Fpk);
 	pkLen := FileSize(Fpk);
 	
 	for i := 1 to pkLen do
@@ -601,7 +601,8 @@ begin
 		writeln;
 		writeln('Paket dengan ID ', id, ' tidak ada!');
 		writeln('Tekan ENTER untuk kembali!');
-		readln;
+    
+    Close(Fpk);
 		exit;
 	end
 	else
@@ -643,19 +644,18 @@ begin
 		writeln('INFORMASI PAKET');
 		writeln('###############');
 		writeln;
-		writeln('===================================================================================');
-		writeln('| Tanggal |   Nama barang   |   Jenis   |  Harga  | Berat |   Tujuan   |  Status  |');
-		writeln('===================================================================================');
-		writeln('|         |                 |           |         |       |            |          |');
-		writeln('===================================================================================');
+		writeln('=====================================================================================');
+		writeln('|  Tanggal  |   Nama barang   |   Jenis   |  Harga  | Berat |   Tujuan   |  Status  |');
+		writeln('=====================================================================================');
+		writeln('|           |                 |           |         |       |            |          |');
+		writeln('=====================================================================================');
 		gotoxy(3, 21); write(pk.tanggal);
-		gotoxy(13, 21); write(pk.nama);
-		gotoxy(31, 21); write(pk.jenis);
-		gotoxy(43, 21); write(pk.harga);
-		gotoxy(53, 21); write(pk.berat);
-		gotoxy(61, 21); write(pk.tujuan);
-		gotoxy(74, 21); readln(pk.status);
-		writeln('ID karyawan : ', pk.id_karyawan);
+		gotoxy(15, 21); write(pk.nama);
+		gotoxy(33, 21); write(pk.jenis);
+		gotoxy(45, 21); write(pk.harga);
+		gotoxy(55, 21); write(pk.berat:0:2);
+		gotoxy(63, 21); write(pk.tujuan);
+		gotoxy(76, 21); readln(pk.status);
 	end;
 	
 	Close(Fpk);
