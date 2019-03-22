@@ -23,7 +23,7 @@ Type
     nama : string;
     jenis : string;
     harga : integer;
-    berat : integer;
+    berat : real;
     tanggal : string;
     tujuan : string;
     status : string;
@@ -294,6 +294,9 @@ begin
 	read(Fkw, kw);
 
 	repeat
+		writeln('Masuk sebagai karyawan UNIKOM EXPEDITION EXPRESS');
+		writeln('################################################');
+		writeln;
 		write('ID karyawan (0 untuk keluar) : ');
 		readln(id);
 		
@@ -323,6 +326,11 @@ begin
   Close(Fkw);
 end;
 
+Function hitungHarga(h : real) : integer;
+begin
+	hitungHarga := round(h) * 10000;
+end;
+
 Procedure kirimPaket();
 var
 	kl : klien;
@@ -334,7 +342,11 @@ var
   Fpr : file of penerima;
   Fpk : file of paket;
   Fkw : file of karyawan;
+  d, m, y : word;
+  tgl : string;
 begin
+	DecodeDate(Date, y, m, d);
+	tgl := IntToStr(d) + '/' + IntToStr(m) + '/' + IntToStr(y);
 	clrscr;
 	
 	//INFORMASI DATA KLIEN
@@ -385,6 +397,9 @@ begin
 	
 	for i := 1 to npaket do
 	begin
+		writeln;
+		writeln('Barang ke-', i);
+		writeln('##############');
 		Assign(Fpk, 'paketdb.dat');
 		Reset(Fpk);
 	
@@ -393,13 +408,19 @@ begin
 		pk.id_karyawan := 1;
 		pk.status := 'PENDING';
 		pk.id_paket := kl.id_klien * 100 + pr.id_penerima * 10 + FileSize(Fpk) + 1;
+		pk.tanggal := tgl;
 	
-		writeln('ID paket      : ', pk.id_paket);
-		write('Nama barang   : ');
+		writeln('ID paket         : ', pk.id_paket);
+		write('Nama barang      : ');
 		readln(pk.nama);
-		write('Berat barang  : ');
+		write('Jenis barang     : ');
+		readln(pk.jenis);
+		write('Berat barang(kg) : ');
 		readln(pk.berat);
-		write('Tujuan barang : ');
+		
+		pk.harga := hitungHarga(pk.berat);
+		
+		write('Tujuan barang    : ');
 		readln(pk.tujuan);
 		
 		Close(Fpk);
@@ -506,7 +527,7 @@ begin
 						gotoxy(28, 6 + i); write(pk1[i].nama);
 						gotoxy(46, 6 + i); write(pk1[i].jenis);
 						gotoxy(56, 6 + i); write(pk1[i].harga);
-						gotoxy(66, 6 + i); write(pk1[i].berat);
+						gotoxy(66, 6 + i); write(pk1[i].berat:0:2);
 						gotoxy(74, 6 + i); write(pk1[i].status);
 					end;
 					
@@ -547,9 +568,102 @@ begin
 	end;
 end;
 
+Procedure urusPaket(id : integer);
+var
+	adakah : boolean;
+	klPos, prPos, pkIndex, i : integer;
+	pk : paket;
+	
+	Fpk : file of paket;
+begin
+	clrscr;
+	adakah := false;
+	
+	Assign(Fpk, 'paketdb.dat');
+	Rewrite(Fpk);
+	pkLen := FileSize(Fpk);
+	
+	for i := 1 to pkLen do
+	begin
+		Seek(Fpk, i - 1);
+		Read(Fpk, pk);
+		
+		if (pk.id_paket = id) then
+		begin
+			pkIndex := i;
+			adakah := true;
+			break;
+		end;
+	end;
+	
+	if not (adakah) then
+	begin
+		writeln;
+		writeln('Paket dengan ID ', id, ' tidak ada!');
+		writeln('Tekan ENTER untuk kembali!');
+		readln;
+		exit;
+	end
+	else
+	begin
+		clrscr;
+		
+		for i := 1 to klLen do
+		begin
+			if (klMem[i].id_klien = pk.id_klien) then
+			begin
+				klPos := i;
+				break;
+			end;
+		end;
+		
+		for i := 1 to prLen do
+		begin
+			if (prMem[i].id_penerima = pk.id_penerima) then
+			begin
+				prPos := i;
+				break;
+			end;
+		end;
+		
+		writeln('INFORMASI KLIEN');
+		writeln('###############');
+		writeln('ID klien    : ', pk.id_klien);
+		writeln('Nama klien  : ', klMem[klPos].nama);
+		writeln('Alamat      : ', klMem[klPos].alamat);
+		writeln('No HP       : ', klMem[klPos].no_hp);
+		writeln;
+		writeln('INFORMASI PENERIMA');
+		writeln('##################');
+		writeln('ID penerima   : ', pk.id_penerima);
+		writeln('Nama penerima : ', prMem[prPos].nama);
+		writeln('Alamat        : ', prMem[prPos].alamat);
+		writeln('No HP         : ', prMem[prPos].no_hp);
+		writeln;
+		writeln('INFORMASI PAKET');
+		writeln('###############');
+		writeln;
+		writeln('===================================================================================');
+		writeln('| Tanggal |   Nama barang   |   Jenis   |  Harga  | Berat |   Tujuan   |  Status  |');
+		writeln('===================================================================================');
+		writeln('|         |                 |           |         |       |            |          |');
+		writeln('===================================================================================');
+		gotoxy(3, 21); write(pk.tanggal);
+		gotoxy(13, 21); write(pk.nama);
+		gotoxy(31, 21); write(pk.jenis);
+		gotoxy(43, 21); write(pk.harga);
+		gotoxy(53, 21); write(pk.berat);
+		gotoxy(61, 21); write(pk.tujuan);
+		gotoxy(74, 21); readln(pk.status);
+		writeln('ID karyawan : ', pk.id_karyawan);
+	end;
+	
+	Close(Fpk);
+end;
+
 Procedure daftarPaket;
 var
-	i : integer;
+	i, id : integer;
 	pk : paket;
 	Fpk : file of paket;
 begin
@@ -574,13 +688,21 @@ begin
 		gotoxy(28, 3 + i); write(pk.nama);
 		gotoxy(46, 3 + i); write(pk.jenis);
 		gotoxy(56, 3 + i); write(pk.harga);
-		gotoxy(66, 3 + i); write(pk.berat);
+		gotoxy(66, 3 + i); write(pk.berat:0:2);
 		gotoxy(74, 3 + i); write(pk.status);
 	end;
 	
 	gotoxy(1, 4 + i); write('===================================================================================');
 	
 	Close(Fpk);
+	
+	writeln;
+	writeln;
+	writeln('Detail paket dan ganti status (nol untuk keluar)');
+	write('ID paket : ');
+	readln(id);
+	urusPaket(id);
+	
 	readln;
 end;
 
@@ -598,10 +720,6 @@ begin
 	writeln('Berhasil! Tekan ENTER untuk keluar');
 	readln;
 	halt(1);
-end;
-
-Procedure urusPaket;
-begin
 end;
 
 BEGIN
