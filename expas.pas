@@ -265,6 +265,11 @@ end;
 Procedure menuUtama;
 begin
 	clrscr;
+	writeln('UNIKOM EXPEDITION EXPRESS -version 1.0');
+	writeln('######################################');
+	writeln('(Tugas kelompok nomor 2)');
+	writeln;
+	writeln('Menu pilihan');
   writeln('=========================');
   writeln('1) Masuk sebagai operator');
   writeln('2) Kirim paket');
@@ -285,17 +290,27 @@ begin
 	clrscr;
 	
 	Assign(Fkw, 'karyawandb.dat');
-	Reset(Fkw);
+	Reset(Fkw); //Karyawan pertama adalah bapak Eddy dengan nomor ID = 1
 	read(Fkw, kw);
 
 	repeat
-		write('Masukkan id karyawan anda (0 utk keluar) : ');
+		write('ID karyawan (0 untuk keluar) : ');
 		readln(id);
 		
 		if (id = 0) then exit;
 	until (id = kw.id_karyawan);
 
 	clrscr;
+	writeln('Masuk sebagai karyawan UNIKOM EXPEDITION EXPRESS');
+	writeln('################################################');
+	writeln;
+	writeln('Informasi karyawan');
+	writeln('##################');
+	writeln('>ID       : ', kw.id_karyawan);
+	writeln('>Nama     : ', kw.nama);
+	writeln('>Nomor HP : ', kw.no_hp);
+	writeln;
+	writeln('Pilihan menu');
   writeln('=========================');
   writeln('1) Daftar paket');
   writeln('2) Ganti status paket');
@@ -382,6 +397,8 @@ begin
 		writeln('ID paket      : ', pk.id_paket);
 		write('Nama barang   : ');
 		readln(pk.nama);
+		write('Berat barang  : ');
+		readln(pk.berat);
 		write('Tujuan barang : ');
 		readln(pk.tujuan);
 		
@@ -530,16 +547,61 @@ begin
 	end;
 end;
 
+Procedure daftarPaket;
+var
+	i : integer;
+	pk : paket;
+	Fpk : file of paket;
+begin
+	clrscr;
+	
+	Assign(Fpk, 'paketdb.dat');
+	Reset(Fpk);
+	pkLen := FileSize(Fpk);
+	
+	writeln('===================================================================================');
+	writeln('| ID Paket | ID Penerima |   Nama barang   |  Jenis  |  Harga  | Berat |  Status  |');
+	writeln('===================================================================================');
+	
+	for i := 1 to pkLen do
+	begin
+		Seek(Fpk, i - 1);
+		Read(Fpk, pk);
+		
+		gotoxy(1, 3 + i); write('|          |             |                 |         |         |       |          |');
+		gotoxy(3, 3 + i); write(pk.id_paket);
+		gotoxy(14, 3 + i); write(pk.id_penerima);
+		gotoxy(28, 3 + i); write(pk.nama);
+		gotoxy(46, 3 + i); write(pk.jenis);
+		gotoxy(56, 3 + i); write(pk.harga);
+		gotoxy(66, 3 + i); write(pk.berat);
+		gotoxy(74, 3 + i); write(pk.status);
+	end;
+	
+	gotoxy(1, 4 + i); write('===================================================================================');
+	
+	Close(Fpk);
+	readln;
+end;
+
 Procedure hapusDB;
 begin
 	clrscr;
 	writeln('Menghapus database...');
+	writeln('...hapus kliendb.dat');
 	DeleteFile('kliendb.dat');
+	writeln('...hapus paketdb.dat');
 	DeleteFile('paketdb.dat');
+	writeln('...hapus penerimadb.dat');
 	DeleteFile('penerimadb.dat');
+	writeln;
 	writeln('Berhasil! Tekan ENTER untuk keluar');
 	readln;
 	halt(1);
+end;
+
+Procedure urusPaket;
+begin
 end;
 
 BEGIN
@@ -557,6 +619,7 @@ BEGIN
 						
 						case ch of
 							1:	begin
+										daftarPaket;
 									end;
 							2:	begin
 									end;
