@@ -601,6 +601,7 @@ begin
 	if not (adakah) then
 	begin
 		writeln;
+		writeln(pkIndex);
 		writeln('Paket dengan ID ', id, ' tidak ada!');
 		writeln('Tekan ENTER untuk kembali!');
     
@@ -661,6 +662,17 @@ begin
 	end;
 	
 	Close(Fpk);
+	
+	pkMem[pkIndex] := pk;
+	Assign(Fpk, 'paketdb.dat');
+  Rewrite(Fpk);
+  
+  for i := 1 to pkLen + 1 do
+  begin
+		write(Fpk, pkMem[i]);
+  end;
+  
+  Close(Fpk);
 end;
 
 Procedure daftarPaket;
