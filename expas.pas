@@ -336,12 +336,10 @@ var
 	kl : klien;
 	pr : penerima;
 	pk : paket;
-	kw : karyawan;
 	i, npaket : integer;
   Fkl : file of klien;
   Fpr : file of penerima;
   Fpk : file of paket;
-  Fkw : file of karyawan;
   d, m, y : word;
   tgl : string;
 begin
@@ -389,17 +387,22 @@ begin
 	
 	writeln;
 	
+	clrscr;
+	
 	//INFORMASI DATA PAKET
 	writeln('DATA PAKET');
 	writeln('============================');
 	write('Berapa banyak paket : ');
 	readln(npaket);
 	
+	writeln;
+	writeln('========================================================================');	
+	writeln('| ID paket |  Nama barang  | Jenis Barang | Berat(kg) | Tujugan barang |');
+	writeln('========================================================================');
+	
 	for i := 1 to npaket do
 	begin
 		writeln;
-		writeln('Barang ke-', i);
-		writeln('##############');
 		Assign(Fpk, 'paketdb.dat');
 		Reset(Fpk);
 	
@@ -409,25 +412,24 @@ begin
 		pk.status := 'PENDING';
 		pk.id_paket := kl.id_klien * 100 + pr.id_penerima * 10 + FileSize(Fpk) + 1;
 		pk.tanggal := tgl;
+
+		gotoxy(1, i + 7); writeln('|          |               |              |           |                |');
 	
-		writeln('ID paket         : ', pk.id_paket);
-		write('Nama barang      : ');
-		readln(pk.nama);
-		write('Jenis barang     : ');
-		readln(pk.jenis);
-		write('Berat barang(kg) : ');
-		readln(pk.berat);
+		gotoxy(3, i + 7); writeln(pk.id_paket);
+		gotoxy(14, i + 7); readln(pk.nama);
+		gotoxy(30, i + 7); readln(pk.jenis);
+		gotoxy(45, i + 7); readln(pk.berat);
 		
 		pk.harga := hitungHarga(pk.berat);
 		
-		write('Tujuan barang    : ');
-		readln(pk.tujuan);
+		gotoxy(57, i + 7); readln(pk.tujuan);
 		
 		Close(Fpk);
 		savePaket(pk);
 		load;
 	end;
 	
+	gotoxy(1, i + 8); writeln('========================================================================');
 	
 end;
 
@@ -559,7 +561,7 @@ begin
 						gotoxy(28, 6); write(pk2.nama);
 						gotoxy(46, 6); write(pk2.jenis);
 						gotoxy(56, 6); write(pk2.harga);
-						gotoxy(66, 6); write(pk2.berat);
+						gotoxy(66, 6); write(pk2.berat:0:2);
 						gotoxy(74, 6); write(pk2.status);
 					
 					readln;
