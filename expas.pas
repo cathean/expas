@@ -306,6 +306,7 @@ begin
 	clrscr;
 	writeln('Masuk sebagai karyawan UNIKOM EXPEDITION EXPRESS');
 	writeln('################################################');
+	writeln('Terdapat ', pkLen, ' - paket!');
 	writeln;
 	writeln('Informasi karyawan');
 	writeln('##################');
@@ -495,6 +496,7 @@ var
 	pk2 : paket;
 begin
 	clrscr;
+	writeln('Mencari paket dengan ID');
   writeln('=========================');
   writeln('1) Cari dengan ID klien');
   writeln('2) Cari dengan ID paket');
@@ -506,6 +508,8 @@ begin
 	case ch of
 		1:	begin
 					clrscr;
+					writeln('Mencari paket dengan ID klien');
+					writeln('=============================');
 					write('ID klien anda : ');
 					readln(id);
 					
@@ -539,6 +543,8 @@ begin
 				end;
 		2:	begin
 					clrscr;
+					writeln('Mencari paket dengan ID paket');
+					writeln('=============================');
 					write('ID paket anda : ');
 					readln(id);
 					
@@ -667,12 +673,17 @@ begin
 	Assign(Fpk, 'paketdb.dat');
   Rewrite(Fpk);
   
-  for i := 1 to pkLen + 1 do
+  writeln(pkLen);
+  readln;
+  
+  for i := 1 to pkLen do
   begin
 		write(Fpk, pkMem[i]);
   end;
   
   Close(Fpk);
+
+	load;
 end;
 
 Procedure daftarPaket;
@@ -715,8 +726,39 @@ begin
 	writeln('Detail paket dan ganti status (nol untuk keluar)');
 	write('ID paket : ');
 	readln(id);
+	
+	if id = 0 then exit;
+	
 	urusPaket(id);
 	
+	readln;
+end;
+
+Procedure daftarKlienPenerima;
+var
+	i : integer;
+begin
+	clrscr;
+	
+	writeln('Daftar klien dan penerima');
+	writeln;
+	writeln('==================================================================');
+	writeln('| ID Klien |   Nama penerima   | ID penerima |   Nama Penerima   |');
+	writeln('==================================================================');
+
+	for i := 1 to  klLen do
+	begin
+		gotoxy(1, i + 5); write('|          |                   |             |                   |');
+		gotoxy(3, i + 5); write(klMem[i].id_klien);
+		gotoxy(14, i + 5); write(klMem[i].nama);
+		gotoxy(34, i + 5); write(prMem[i].id_penerima);
+		gotoxy(48, i + 5); write(prMem[i].nama);
+	end;
+	
+	gotoxy(1, i + 6); write('==================================================================');
+	
+	writeln;
+	writeln('Tekan ENTER untuk kembali!');
 	readln;
 end;
 
@@ -747,6 +789,7 @@ BEGIN
     
     case ch of
 			1:	begin
+					
 						operatorMenu;
 						
 						case ch of
@@ -754,6 +797,7 @@ BEGIN
 										daftarPaket;
 									end;
 							2:	begin
+										daftarKlienPenerima;
 									end;
 							3:	begin
 										hapusDB;
