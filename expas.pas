@@ -194,6 +194,53 @@ begin
 	Close(Fkw);
 end;
 
+Procedure destroyArr(klMem : klienArr; pkMem : paketArr; kwMem : karyawanArr; prMem : penerimaArr);
+var
+	i : integer;
+begin
+	for i := 1 to MAX_KLIEN do
+	begin
+		klMem[i].id_klien := 0;
+		klMem[i].nama := '';
+		klMem[i].alamat := '';
+		klMem[i].no_hp := '';
+		klMem[i].hargatot := 0;
+	end;
+	
+		for i := 1 to MAX_PAKET do
+	begin
+		pkMem[i].id_klien := 0;
+		pkMem[i].id_penerima := 0;
+		pkMem[i].id_karyawan := 0;
+		pkMem[i].id_paket := 0;
+		pkMem[i].nama := '';
+		pkMem[i].jenis := '';
+		pkMem[i].harga := 0;
+		pkMem[i].berat := 0;
+		pkMem[i].tanggal := '';
+		pkMem[i].tujuan := '';
+		pkMem[i].status := '';
+	end;
+	
+		for i := 1 to MAX_KARYAWAN do
+	begin
+		kwMem[i].id_karyawan := 0;
+		kwMem[i].nama := '';
+		kwMem[i].no_hp := '';
+	end;
+	
+		for i := 1 to MAX_PENERIMA do
+	begin
+		prMem[i].id_penerima := 0;
+		prMem[i].nama := '';
+		prMem[i].alamat := '';
+		prMem[i].no_hp := '';
+	end;
+	
+	writeln('Array berhasil dihapus!');
+	readln;
+end;
+
 Procedure saveKlien(kl : klien);
 var
 	i : integer;
@@ -325,8 +372,9 @@ begin
   writeln('=========================');
   writeln('1) Daftar paket');
   writeln('2) Daftar klien dan penerima');
-  writeln('3) Hapus semua database');
-  writeln('4) Kembali');
+  writeln('3) Hapus semua file database');
+  writeln('4) Delete semua array database');
+  writeln('5) Kembali');
   writeln('=========================');
   write('Pilih => ');
   readln(ch);
@@ -845,6 +893,66 @@ begin
 	readln;
 end;
 
+Procedure hapusPaket;
+var
+	ada : boolean;
+	id, i, indeks : integer;
+begin
+	ada := false;
+	writeln('Penghapusan paket');
+	writeln('=========================');
+	write('Masukkan ID paket : ');
+	readln(id);
+	
+	for i := 1 to pkLen do
+	begin
+		if pkMem[i].id_paket = id then
+		begin
+			indeks := i;
+			ada := true;
+			break;
+		end;
+	end;
+	
+	if not ada then
+	begin
+		writeln('Buku yang dicari tidak ada!');
+		readln;
+	end;
+	
+	pkMem[indeks].id_paket := 0;
+	pkMem[indeks].id_klien := 0;
+	pkMem[indeks].id_penerima := 0;
+	pkMem[indeks].id_karyawan := 0;
+	pkMem[indeks].nama := '';
+	pkMem[indeks].status := '';
+	pkMem[indeks].jenis := '';
+	pkMem[indeks].harga := 0;
+	pkMem[indeks].berat := 0;
+	pkMem[indeks].tanggal := '';
+	pkMem[indeks].tujuan := '';
+	
+	for i := indeks to pkLen do
+	begin
+		if i + 1 > pkLen then
+		begin
+			pkMem[pkLen].id_paket := 0;
+			pkMem[pkLen].id_klien := 0;
+			pkMem[pkLen].id_penerima := 0;
+			pkMem[pkLen].id_karyawan := 0;
+			pkMem[pkLen].nama := '';
+			pkMem[pkLen].status := '';
+			pkMem[pkLen].jenis := '';
+			pkMem[pkLen].harga := 0;
+			pkMem[pkLen].berat := 0;
+			pkMem[pkLen].tanggal := '';
+			pkMem[pkLen].tujuan := '';
+		end;
+		
+		pkMem[i] := pkMem[i + 1];
+	end;
+end;
+
 Procedure hapusDB;
 begin
 	clrscr;
@@ -890,8 +998,11 @@ BEGIN
 							3:	begin
 										hapusDB;
 									end;
+							4:	begin
+										destroyArr(klMem, pkMem, kwMem, prMem);
+									end;
 						end;
-          until (ch = 4);
+          until (ch = 5);
 					end;
 			2:	begin
 						kirimPaket;
