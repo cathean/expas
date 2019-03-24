@@ -294,13 +294,20 @@ begin
 	read(Fkw, kw);
 
 	repeat
+    if (ch = 5) or (ch = 0) then break;
+  
 		writeln('Masuk sebagai karyawan UNIKOM EXPEDITION EXPRESS');
 		writeln('################################################');
 		writeln;
 		write('ID karyawan (0 untuk keluar) : ');
 		readln(id);
 		
-		if (id = 0) then exit;
+		if (id = 0) then
+    begin
+      ch := id;
+      Close(Fkw);
+      exit;
+    end;
 	until (id = kw.id_karyawan);
 
 	clrscr;
@@ -325,6 +332,21 @@ begin
   readln(ch);
   
   Close(Fkw);
+end;
+
+Procedure sortDaftarPaket;
+begin
+  clrscr;
+	writeln('Pilihan menu Quick Sort Descending');
+  writeln('==================================');
+  writeln('1) Terhadap ID paket');
+  writeln('2) Terhadap ID penerima');
+  writeln('3) Terhadap harga barang');
+  writeln('4) Terhadap berat barang');
+  writeln('5) Kembali');
+  writeln('==================================');
+  write('Pilih => ');
+  readln(ch);
 end;
 
 Function hitungHarga(h : real) : integer;
@@ -686,40 +708,98 @@ begin
 	load;
 end;
 
-Procedure daftarPaket;
+procedure QuickSort(var AI: paketArr; ALo, AHi: Integer; flag : integer);
+var
+  Lo, Hi, Pivot : Integer;
+  Pivot2 : real;
+  T : paket;
+begin
+  Lo := ALo;
+  Hi := AHi;
+  
+  if (flag = 1) then
+    Pivot := AI[(Lo + Hi) div 2].id_paket //////////////
+  else if (flag = 2) then
+    Pivot := AI[(Lo + Hi) div 2].id_penerima //////////////  
+  else if (flag = 3) then
+    Pivot := AI[(Lo + Hi) div 2].harga //////////////
+  else if (flag = 4) then
+    Pivot2 := AI[(Lo + Hi) div 2].berat; //////////////
+
+  repeat
+    if (flag = 1) then
+    begin
+      while AI[Lo].id_paket > Pivot do ////////////
+        Inc(Lo) ;
+      while AI[Hi].id_paket < Pivot do ////////////
+        Dec(Hi) ;
+    end
+    else if (flag = 2) then
+    begin
+      while AI[Lo].id_penerima > Pivot do ////////////
+        Inc(Lo) ;
+      while AI[Hi].id_penerima < Pivot do ////////////
+        Dec(Hi) ;
+    end
+    else if (flag = 3) then
+    begin
+      while AI[Lo].harga > Pivot do ////////////
+        Inc(Lo) ;
+      while AI[Hi].harga < Pivot do ////////////
+        Dec(Hi) ;
+    end
+    else if (flag = 4) then
+    begin
+      while AI[Lo].berat > Pivot2 do ////////////
+        Inc(Lo) ;
+      while AI[Hi].berat < Pivot2 do ////////////
+        Dec(Hi) ;
+    end;
+
+    if Lo <= Hi then
+    begin
+      T := AI[Lo];
+      AI[Lo] := AI[Hi];
+      AI[Hi] := T;
+      Inc(Lo) ;
+      Dec(Hi) ;
+    end;
+  until Lo > Hi;
+  if Hi > ALo then
+    QuickSort(AI, ALo, Hi, flag) ;
+  if Lo < AHi then
+    QuickSort(AI, Lo, AHi, flag) ;
+end;
+
+Procedure daftarPaket(flag : integer);
 var
 	i, id : integer;
-	pk : paket;
-	Fpk : file of paket;
+  pkTemp : paketArr;
 begin
 	clrscr;
+  load;
 	
-	Assign(Fpk, 'paketdb.dat');
-	Reset(Fpk);
-	pkLen := FileSize(Fpk);
-	
+  pkTemp := pkMem;
+  QuickSort(pkTemp, 1, pkLen, flag);
+  
 	writeln('===================================================================================');
 	writeln('| ID Paket | ID Penerima |   Nama barang   |  Jenis  |  Harga  | Berat |  Status  |');
 	writeln('===================================================================================');
 	
 	for i := 1 to pkLen do
 	begin
-		Seek(Fpk, i - 1);
-		Read(Fpk, pk);
 		
 		gotoxy(1, 3 + i); write('|          |             |                 |         |         |       |          |');
-		gotoxy(3, 3 + i); write(pk.id_paket);
-		gotoxy(14, 3 + i); write(pk.id_penerima);
-		gotoxy(28, 3 + i); write(pk.nama);
-		gotoxy(46, 3 + i); write(pk.jenis);
-		gotoxy(56, 3 + i); write(pk.harga);
-		gotoxy(66, 3 + i); write(pk.berat:0:2);
-		gotoxy(74, 3 + i); write(pk.status);
+		gotoxy(3, 3 + i); write(pkTemp[i].id_paket);
+		gotoxy(14, 3 + i); write(pkTemp[i].id_penerima);
+		gotoxy(28, 3 + i); write(pkTemp[i].nama);
+		gotoxy(46, 3 + i); write(pkTemp[i].jenis);
+		gotoxy(56, 3 + i); write(pkTemp[i].harga);
+		gotoxy(66, 3 + i); write(pkTemp[i].berat:0:2);
+		gotoxy(74, 3 + i); write(pkTemp[i].status);
 	end;
 	
 	gotoxy(1, 4 + i); write('===================================================================================');
-	
-	Close(Fpk);
 	
 	writeln;
 	writeln;
@@ -727,8 +807,11 @@ begin
 	write('ID paket : ');
 	readln(id);
 	
-	if id = 0 then exit;
-	
+	if id = 0 then
+  begin
+    ch := 0;
+    exit;
+  end;
 	urusPaket(id);
 	
 	readln;
@@ -790,11 +873,16 @@ BEGIN
     case ch of
 			1:	begin
 					
+          repeat
 						operatorMenu;
-						
+            
 						case ch of
 							1:	begin
-										daftarPaket;
+                    sortDaftarPaket;
+                    
+                    if (ch = 5) then continue;
+                    
+										daftarPaket(ch);
 									end;
 							2:	begin
 										daftarKlienPenerima;
@@ -802,10 +890,8 @@ BEGIN
 							3:	begin
 										hapusDB;
 									end;
-							4:	begin
-										continue;
-									end;
 						end;
+          until (ch = 4);
 					end;
 			2:	begin
 						kirimPaket;
